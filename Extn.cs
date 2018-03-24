@@ -9,9 +9,10 @@ using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using System.Windows;
-using System.Windows.Controls;
+using WPF = System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Forms;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
@@ -254,10 +255,10 @@ namespace AEonAX.Shared
         }
 
         private static TimeSpan duration = TimeSpan.FromSeconds(0.5);
-        public static void SetValueSmooth(this System.Windows.Controls.ProgressBar progressBar, double value)
+        public static void SetValueSmooth(this WPF.ProgressBar progressBar, double value)
         {
             DoubleAnimation animation = new DoubleAnimation(value, duration);
-            progressBar.BeginAnimation(System.Windows.Controls.ProgressBar.ValueProperty, animation);
+            progressBar.BeginAnimation(WPF.Primitives.RangeBase.ValueProperty, animation);
         }
 
 
@@ -281,15 +282,24 @@ namespace AEonAX.Shared
         {
             if (element == null) return;
 
-            System.Windows.Controls.Canvas parent = element.Parent as Canvas;
+            WPF.Canvas parent = element.Parent as WPF.Canvas;
             if (parent == null) return;
 
             var maxZ = parent.Children.OfType<UIElement>()
               .Where(x => x != element)
-              .Select(x => System.Windows.Controls.Canvas.GetZIndex(x))
+              .Select(x => WPF.Panel.GetZIndex(x))
               .Max();
-            System.Windows.Controls.Canvas.SetZIndex(element, maxZ + 1);
+            WPF.Panel.SetZIndex(element, maxZ + 1);
         }
+
+        public static void RaiseCanExecuteChanged(this ICommand command)
+        {
+            var canExecuteChanged = command as IRaiseCanExecuteChanged;
+
+            if (canExecuteChanged != null)
+                canExecuteChanged.RaiseCanExecuteChanged();
+        }
+
 
     }
 }
